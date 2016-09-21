@@ -12,7 +12,7 @@ class AddFeatureMutation extends Relay.Mutation {
     return {
       name: this.props.name,
       description: this.props.description,
-      url: this.props.url
+      url: this.props.url,
     };
   }
 
@@ -36,6 +36,14 @@ class AddFeatureMutation extends Relay.Mutation {
         '': 'append',
       },
     }];
+  }
+
+  getOptimisticResponse() {
+    return {
+      featureEdge: {
+        node: this.getVariables(),
+      },
+    };
   }
 }
 
