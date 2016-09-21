@@ -22,6 +22,9 @@ import {
   cursorForObjectInConnection
 } from 'graphql-relay';
 
+import { resolver, relay, attributeFields } from 'graphql-sequelize';
+
+
 import {
   User,
   Feature,
@@ -31,6 +34,18 @@ import {
   addFeature
 } from './database';
 
+import sequelize from './sequelize';
+
+
+const {
+  sequelizeNodeInterface,
+  sequelizeConnection,
+} = relay;
+
+const {
+  Issue,
+} = sequelize.models;
+
 
 /**
  * We get the node interface and field from the Relay library.
@@ -38,25 +53,12 @@ import {
  * The first method defines the way we resolve an ID to its object.
  * The second defines the way we resolve an object to its GraphQL type.
  */
-const { nodeInterface, nodeField } = nodeDefinitions(
-  (globalId) => {
-    const { type, id } = fromGlobalId(globalId);
-    if (type === 'User') {
-      return getUser(id);
-    } else if (type === 'Feature') {
-      return getFeature(id);
-    }
-    return null;
-  },
-  (obj) => {
-    if (obj instanceof User) {
-      return userType;
-    } else if (obj instanceof Feature) {
-      return featureType;
-    }
-    return null;
-  }
-);
+
+const {
+  nodeInterface,
+  nodeField,
+  nodeTypeMapper
+} = sequelizeNodeInterface(sequelize);
 
 /**
  * Define your own types here
@@ -80,7 +82,12 @@ const userType = new GraphQLObjectType({
     website: {
       type: GraphQLString,
       description: 'User\'s website'
-    }
+    },
+    issues: {
+      type: issueConnection.connectionType,
+      args: issueConnection.connectionArgs,
+      resolve: issueConnection.resolve,
+    },
   }),
   interfaces: [nodeInterface]
 });
@@ -104,6 +111,24 @@ const featureType = new GraphQLObjectType({
     }
   }),
   interfaces: [nodeInterface]
+});
+
+const issueType = new GraphQLObjectType({
+  name: Issue.name,
+  fields: {
+    ...attributeFields(Issue, {
+      globalId: true,
+    }),
+  },
+  interfaces: [nodeInterface]
+});
+
+
+const issueConnection = sequelizeConnection({
+  name: Issue.options.name.plural,
+  nodeType: issueType,
+  target: Issue,
+  interfaces: [nodeInterface],
 });
 
 /**
@@ -140,6 +165,27 @@ const addFeatureMutation = mutationWithClientMutationId({
   mutateAndGetPayload: ({ name, description, url }) => addFeature(name, description, url)
 });
 
+/**
+ * Map nodeTypes
+ *
+ */
+nodeTypeMapper.mapTypes({
+  [Issue.name]: issueType,
+  User: {
+    type: userType,
+    resolve(globalId) {
+      const { type, id } = fromGlobalId(globalId);
+      return getUser(id);
+    },
+  },
+  Feature: {
+    type: userType,
+    resolve(globalId) {
+      const { type, id } = fromGlobalId(globalId);
+      return getFeature(id);
+    },
+  },
+});
 
 /**
  * This is the type that will be the root of our query,

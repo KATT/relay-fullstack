@@ -44,6 +44,36 @@ type FeatureEdge {
   cursor: String!
 }
 
+type Issue implements Node {
+  # The ID of an object
+  id: ID!
+  name: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+# A connection to a list of items.
+type IssuesConnection {
+  # Information to aid in pagination.
+  pageInfo: PageInfo!
+
+  # A list of edges.
+  edges: [IssuesEdge]
+}
+
+enum IssuesConnectionOrder {
+  ID
+}
+
+# An edge in a connection.
+type IssuesEdge {
+  # The item at the end of the edge
+  node: Issue
+
+  # A cursor for use in pagination
+  cursor: String!
+}
+
 type Mutation {
   addFeature(input: AddFeatureInput!): AddFeaturePayload
 }
@@ -91,4 +121,5 @@ type User implements Node {
 
   # User's website
   website: String
+  issues(after: String, first: Int, before: String, last: Int, orderBy: [IssuesConnectionOrder]): IssuesConnection
 }
