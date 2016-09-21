@@ -2,11 +2,14 @@ import Relay from 'react-relay';
 import Feature from './FeatureComponent';
 
 export default Relay.createContainer(Feature, {
+  initialVariables: {
+    limit: 20,
+  },
   fragments: {
     viewer: () => Relay.QL`
       fragment on User {
-        id,
-        features(first: 20) {
+        id
+        features(first: $limit) {
           edges {
             node {
               id
@@ -14,6 +17,9 @@ export default Relay.createContainer(Feature, {
               description
               url
             }
+          }
+          pageInfo {
+            hasNextPage
           }
         }
       }`
