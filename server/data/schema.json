@@ -134,8 +134,32 @@
               "deprecationReason": null
             },
             {
+              "name": "username",
+              "description": "Users's username",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "website",
+              "description": "User's website",
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "features",
-              "description": "Features that I have",
+              "description": null,
               "args": [
                 {
                   "name": "after",
@@ -176,35 +200,25 @@
                     "ofType": null
                   },
                   "defaultValue": null
+                },
+                {
+                  "name": "orderBy",
+                  "description": null,
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "ENUM",
+                      "name": "FeaturesConnectionOrder",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
                 }
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "FeatureConnection",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "username",
-              "description": "Users's username",
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
-              "name": "website",
-              "description": "User's website",
-              "args": [],
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
+                "name": "FeaturesConnection",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -310,8 +324,25 @@
           "possibleTypes": null
         },
         {
+          "kind": "ENUM",
+          "name": "FeaturesConnectionOrder",
+          "description": null,
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "ID",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
-          "name": "FeatureConnection",
+          "name": "FeaturesConnection",
           "description": "A connection to a list of items.",
           "fields": [
             {
@@ -339,7 +370,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "OBJECT",
-                  "name": "FeatureEdge",
+                  "name": "FeaturesEdge",
                   "ofType": null
                 }
               },
@@ -431,7 +462,7 @@
         },
         {
           "kind": "OBJECT",
-          "name": "FeatureEdge",
+          "name": "FeaturesEdge",
           "description": "An edge in a connection.",
           "fields": [
             {
@@ -471,7 +502,7 @@
         {
           "kind": "OBJECT",
           "name": "Feature",
-          "description": "Feature integrated in our starter kit",
+          "description": null,
           "fields": [
             {
               "name": "id",
@@ -491,36 +522,80 @@
             },
             {
               "name": "name",
-              "description": "Name of the feature",
+              "description": null,
               "args": [],
               "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "description",
-              "description": "Description of the feature",
+              "description": null,
               "args": [],
               "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "url",
-              "description": "Url of the feature",
+              "description": null,
               "args": [],
               "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "createdAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "updatedAt",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -829,7 +904,7 @@
               "args": [],
               "type": {
                 "kind": "OBJECT",
-                "name": "FeatureEdge",
+                "name": "FeaturesEdge",
                 "ofType": null
               },
               "isDeprecated": false,

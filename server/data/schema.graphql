@@ -6,37 +6,36 @@ input AddFeatureInput {
 }
 
 type AddFeaturePayload {
-  featureEdge: FeatureEdge
+  featureEdge: FeaturesEdge
   viewer: User
   clientMutationId: String
 }
 
-# Feature integrated in our starter kit
 type Feature implements Node {
   # The ID of an object
   id: ID!
-
-  # Name of the feature
-  name: String
-
-  # Description of the feature
-  description: String
-
-  # Url of the feature
-  url: String
+  name: String!
+  description: String!
+  url: String!
+  createdAt: String!
+  updatedAt: String!
 }
 
 # A connection to a list of items.
-type FeatureConnection {
+type FeaturesConnection {
   # Information to aid in pagination.
   pageInfo: PageInfo!
 
   # A list of edges.
-  edges: [FeatureEdge]
+  edges: [FeaturesEdge]
+}
+
+enum FeaturesConnectionOrder {
+  ID
 }
 
 # An edge in a connection.
-type FeatureEdge {
+type FeaturesEdge {
   # The item at the end of the edge
   node: Feature
 
@@ -113,13 +112,11 @@ type User implements Node {
   # The ID of an object
   id: ID!
 
-  # Features that I have
-  features(after: String, first: Int, before: String, last: Int): FeatureConnection
-
   # Users's username
   username: String
 
   # User's website
   website: String
+  features(after: String, first: Int, before: String, last: Int, orderBy: [FeaturesConnectionOrder]): FeaturesConnection
   issues(after: String, first: Int, before: String, last: Int, orderBy: [IssuesConnectionOrder]): IssuesConnection
 }

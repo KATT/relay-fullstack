@@ -19,7 +19,8 @@ import {
   globalIdField,
   mutationWithClientMutationId,
   nodeDefinitions,
-  cursorForObjectInConnection
+  cursorForObjectInConnection,
+  offsetToCursor,
 } from 'graphql-relay';
 
 import { resolver, relay, attributeFields } from 'graphql-sequelize';
@@ -27,11 +28,7 @@ import { resolver, relay, attributeFields } from 'graphql-sequelize';
 
 import {
   User,
-  Feature,
   getUser,
-  getFeature,
-  getFeatures,
-  addFeature
 } from './database';
 
 import sequelize from './sequelize';
@@ -44,6 +41,7 @@ const {
 
 const {
   Issue,
+  Feature,
 } = sequelize.models;
 
 
@@ -69,12 +67,6 @@ const userType = new GraphQLObjectType({
   description: 'A person who uses our app',
   fields: () => ({
     id: globalIdField('User'),
-    features: {
-      type: featureConnection,
-      description: 'Features that I have',
-      args: connectionArgs,
-      resolve: (_, args) => connectionFromArray(getFeatures(), args)
-    },
     username: {
       type: GraphQLString,
       description: 'Users\'s username'
@@ -82,6 +74,11 @@ const userType = new GraphQLObjectType({
     website: {
       type: GraphQLString,
       description: 'User\'s website'
+    },
+    features: {
+      type: featureConnection.connectionType,
+      args: featureConnection.connectionArgs,
+      resolve: featureConnection.resolve,
     },
     issues: {
       type: issueConnection.connectionType,
@@ -92,24 +89,14 @@ const userType = new GraphQLObjectType({
   interfaces: [nodeInterface]
 });
 
+
 const featureType = new GraphQLObjectType({
-  name: 'Feature',
-  description: 'Feature integrated in our starter kit',
-  fields: () => ({
-    id: globalIdField('Feature'),
-    name: {
-      type: GraphQLString,
-      description: 'Name of the feature'
-    },
-    description: {
-      type: GraphQLString,
-      description: 'Description of the feature'
-    },
-    url: {
-      type: GraphQLString,
-      description: 'Url of the feature'
-    }
-  }),
+  name: Feature.name,
+  fields: {
+    ...attributeFields(Feature, {
+      globalId: true,
+    }),
+  },
   interfaces: [nodeInterface]
 });
 
@@ -123,6 +110,9 @@ const issueType = new GraphQLObjectType({
   interfaces: [nodeInterface]
 });
 
+/**
+ * Define your own connection types here
+ */
 
 const issueConnection = sequelizeConnection({
   name: Issue.options.name.plural,
@@ -131,11 +121,12 @@ const issueConnection = sequelizeConnection({
   interfaces: [nodeInterface],
 });
 
-/**
- * Define your own connection types here
- */
-const { connectionType: featureConnection, edgeType: featureEdge } = connectionDefinitions({ name: 'Feature', nodeType: featureType });
-
+const featureConnection = sequelizeConnection({
+  name: Feature.options.name.plural,
+  nodeType: featureType,
+  target: Feature,
+  interfaces: [nodeInterface],
+});
 /**
  * Create feature example
  */
@@ -147,12 +138,16 @@ const addFeatureMutation = mutationWithClientMutationId({
     description: { type: new GraphQLNonNull(GraphQLString) },
     url: { type: new GraphQLNonNull(GraphQLString) },
   },
-
   outputFields: {
     featureEdge: {
-      type: featureEdge,
-      resolve: (obj) => {
-        const cursorId = cursorForObjectInConnection(getFeatures(), obj);
+      type: featureConnection.edgeType,
+      async resolve(obj) {
+        // FIXME temp delay to test optimistic update
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+         // FIXME 😷 -- cursor not really working
+        const cursorId = offsetToCursor(obj.id);
+
         return { node: obj, cursor: cursorId };
       }
     },
@@ -161,8 +156,7 @@ const addFeatureMutation = mutationWithClientMutationId({
       resolve: () => getUser('1')
     }
   },
-
-  mutateAndGetPayload: ({ name, description, url }) => addFeature(name, description, url)
+  mutateAndGetPayload: data => Feature.create(data),
 });
 
 /**
@@ -171,18 +165,12 @@ const addFeatureMutation = mutationWithClientMutationId({
  */
 nodeTypeMapper.mapTypes({
   [Issue.name]: issueType,
+  [Feature.name]: featureType,
   User: {
     type: userType,
     resolve(globalId) {
       const { type, id } = fromGlobalId(globalId);
       return getUser(id);
-    },
-  },
-  Feature: {
-    type: userType,
-    resolve(globalId) {
-      const { type, id } = fromGlobalId(globalId);
-      return getFeature(id);
     },
   },
 });
