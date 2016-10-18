@@ -232,7 +232,7 @@ if (SCAFFOLD) {
     .then(() => {
       const query = `{
         viewer {
-          issues {
+          issues(first:1) {
             edges {
               node {
                 id
