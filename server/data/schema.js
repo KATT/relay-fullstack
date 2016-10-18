@@ -153,7 +153,7 @@ const featureConnection = sequelizeConnection({
  * Create feature example
  */
 
-const addFeatureMutation = mutationWithClientMutationId({
+const addFeature = mutationWithClientMutationId({
   name: 'AddFeature',
   inputFields: {
     name: { type: new GraphQLNonNull(GraphQLString) },
@@ -179,6 +179,32 @@ const addFeatureMutation = mutationWithClientMutationId({
     }
   },
   mutateAndGetPayload: data => Feature.create(data),
+});
+
+const addTodoItem = mutationWithClientMutationId({
+  name: 'AddTodoItem',
+  inputFields: {
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    issueId: { type: new GraphQLNonNull(GraphQLID) }
+  },
+  outputFields: {
+    todoItem: {
+      type: todoItemType,
+      resolve: obj => obj,
+    },
+  },
+  async mutateAndGetPayload(input) {
+    const {
+      issueId,
+      ...data,
+    } = input;
+
+    const { type, id } = fromGlobalId(issueId);
+
+    const issue = await Issue.findById(id);
+
+    return issue.createTodoItem(data);
+  },
 });
 
 /**
@@ -220,7 +246,8 @@ const queryType = new GraphQLObjectType({
 const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: () => ({
-    addFeature: addFeatureMutation
+    addFeature,
+    addTodoItem,
     // Add your own mutations here
   })
 });

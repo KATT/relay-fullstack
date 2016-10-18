@@ -11,6 +11,17 @@ type AddFeaturePayload {
   clientMutationId: String
 }
 
+input AddTodoItemInput {
+  name: String!
+  issueId: ID!
+  clientMutationId: String
+}
+
+type AddTodoItemPayload {
+  todoItem: TodoItem
+  clientMutationId: String
+}
+
 type Feature implements Node {
   # The ID of an object
   id: ID!
@@ -76,6 +87,7 @@ type IssuesEdge {
 
 type Mutation {
   addFeature(input: AddFeatureInput!): AddFeaturePayload
+  addTodoItem(input: AddTodoItemInput!): AddTodoItemPayload
 }
 
 # An object with an ID
