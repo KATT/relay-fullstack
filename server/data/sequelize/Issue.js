@@ -7,8 +7,10 @@ export default (sequelize, DataTypes) => {
   }, {
     classMethods: {
       associate: models => { // eslint-disable-line
+        const { TodoItem } = models;
 
-
+        Issue.TodoItem = Issue.hasMany(TodoItem);
+        TodoItem.Issue = TodoItem.belongsTo(Issue);
       },
     }
   });

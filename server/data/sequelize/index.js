@@ -46,23 +46,23 @@ export async function scaffold() {
   // Scaffold some Issues
   await sequelize.sync({ force: true });
 
-  const issuesData = _.times(20, i => ({
-    name: `Issue ${i}`,
-  }));
-  const issues = await models.Issue.bulkCreate(issuesData);
+  const issues = [];
+  const nIssues = 10;
+  for (let i = 0; i < nIssues; i++) {
+    const name = `Issue ${i + 1}`;
+    const issue = await models.Issue.create({ name });
+    issues.push(issue);
+  }
 
 
-  const todoItemsData = [];
-  issues.forEach((issue) => {
-    _.times(_.random(1, 10), (i) => {
-      const name = `TodoItem ${i} for ${issue.name}`;
-      const issueId = issue.id;
+  for (const issue of issues) {
+    const nTodos = _.random(1, 5);
+    for (let i = 0; i < nTodos; i++) {
+      const name = `TodoItem ${i + 1} for ${issue.name}`;
 
-      todoItemsData.push({ issueId, name });
-    });
-  });
-
-  // const todoItems = await models.TodoItem.bulkCreate(issuesData);
+      await issue.createTodoItem({ name });
+    }
+  }
 }
 
 export default sequelize;

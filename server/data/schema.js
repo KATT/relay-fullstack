@@ -49,6 +49,7 @@ const {
 const {
   Issue,
   Feature,
+  TodoItem,
 } = sequelize.models;
 
 
@@ -107,13 +108,27 @@ const featureType = new GraphQLObjectType({
   interfaces: [nodeInterface]
 });
 
+const todoItemType = new GraphQLObjectType({
+  name: TodoItem.name,
+  fields: () => ({
+    ...attributeFields(TodoItem, {
+      globalId: true,
+    }),
+  }),
+  interfaces: [nodeInterface]
+});
+
 const issueType = new GraphQLObjectType({
   name: Issue.name,
-  fields: {
+  fields: () => ({
     ...attributeFields(Issue, {
       globalId: true,
     }),
-  },
+    todoItems: {
+      type: new GraphQLList(todoItemType),
+      resolve: resolver(Issue.TodoItem),
+    },
+  }),
   interfaces: [nodeInterface]
 });
 
@@ -237,7 +252,10 @@ if (SCAFFOLD) {
               node {
                 id
                 name
-                # issues
+                todoItems {
+                  name
+                  completed
+                }
               }
             }
           }
