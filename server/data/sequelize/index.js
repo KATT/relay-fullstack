@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import fs from 'fs';
 import path from 'path';
+import _ from 'lodash';
 
 const {
   PG_MAIN_DB,
@@ -41,7 +42,27 @@ Object.keys(models).forEach((modelName) => {
 });
 
 
-sequelize.sync({ force: true });
+export async function scaffold() {
+  // Scaffold some Issues
+  await sequelize.sync({ force: true });
 
+  const issuesData = _.times(20, i => ({
+    name: `Issue ${i}`,
+  }));
+  const issues = await models.Issue.bulkCreate(issuesData);
+
+
+  const todoItemsData = [];
+  issues.forEach((issue) => {
+    _.times(_.random(1, 10), (i) => {
+      const name = `TodoItem ${i} for ${issue.name}`;
+      const issueId = issue.id;
+
+      todoItemsData.push({ issueId, name });
+    });
+  });
+
+  // const todoItems = await models.TodoItem.bulkCreate(issuesData);
+}
 
 export default sequelize;

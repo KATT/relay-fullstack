@@ -1,5 +1,8 @@
 /* eslint-disable no-unused-vars, no-use-before-define */
+import chalk from 'chalk';
+
 import {
+  graphql,
   GraphQLBoolean,
   GraphQLFloat,
   GraphQLID,
@@ -31,8 +34,12 @@ import {
   getUser,
 } from './database';
 
-import sequelize from './sequelize';
+import sequelize, { scaffold } from './sequelize';
 
+const {
+  SCAFFOLD,
+  NODE_ENV,
+} = process.env;
 
 const {
   sequelizeNodeInterface,
@@ -207,7 +214,42 @@ const mutationType = new GraphQLObjectType({
  * Finally, we construct our schema (whose starting query type is the query
  * type we defined above) and export it.
  */
-export default new GraphQLSchema({
+
+const schema = new GraphQLSchema({
   query: queryType,
   mutation: mutationType
 });
+
+
+if (SCAFFOLD) {
+  if (NODE_ENV !== 'development') {
+    throw new Error('Trying to scaffold in non-development environment.');
+  }
+  console.log('Scaffolding content'); // eslint-disable-line no-console
+
+  scaffold()
+    .then(() => console.log(chalk.green('Scaffolding done'))) // eslint-disable-line no-console
+    .then(() => {
+      const query = `{
+        viewer {
+          issues {
+            edges {
+              node {
+                id
+                name
+                # issues
+              }
+            }
+          }
+        }
+      }`;
+      console.log(`Executing query ${query}`); // eslint-disable-line no-console
+      return graphql(schema, query);
+    })
+    .then(results => console.log('Results:', JSON.stringify(results, null, 2))) // eslint-disable-line no-console
+    .catch(console.error) // eslint-disable-line no-console
+    ;
+}
+
+
+export default schema;
