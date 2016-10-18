@@ -4,6 +4,13 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+  }, {
+    classMethods: {
+      associate: models => { // eslint-disable-line
+
+
+      },
+    }
   });
 
   return Issue;
