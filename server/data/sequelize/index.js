@@ -43,7 +43,6 @@ Object.keys(models).forEach((modelName) => {
 
 
 export async function scaffold() {
-  // Scaffold some Issues
   await sequelize.sync({ force: true });
 
   const issues = [];
@@ -63,6 +62,12 @@ export async function scaffold() {
       await issue.createTodoItem({ name });
     }
   }
+
+  await models.User.create({
+    name: 'Test user',
+    username: 'test',
+    email: 'test@dice.fm',
+  });
 }
 
 export default sequelize;

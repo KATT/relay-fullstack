@@ -28,12 +28,6 @@ import {
 
 import { resolver, relay, attributeFields } from 'graphql-sequelize';
 
-
-import {
-  User,
-  getUser,
-} from './database';
-
 import sequelize, { scaffold } from './sequelize';
 
 const {
@@ -50,6 +44,7 @@ const {
   Issue,
   Feature,
   TodoItem,
+  User,
 } = sequelize.models;
 
 
@@ -74,15 +69,9 @@ const userType = new GraphQLObjectType({
   name: 'User',
   description: 'A person who uses our app',
   fields: () => ({
-    id: globalIdField('User'),
-    username: {
-      type: GraphQLString,
-      description: 'Users\'s username'
-    },
-    website: {
-      type: GraphQLString,
-      description: 'User\'s website'
-    },
+    ...attributeFields(User, {
+      globalId: true,
+    }),
     issues: {
       type: issueConnection.connectionType,
       args: issueConnection.connectionArgs,
@@ -163,7 +152,7 @@ nodeTypeMapper.mapTypes({
     type: userType,
     resolve(globalId) {
       const { type, id } = fromGlobalId(globalId);
-      return getUser(id);
+      return User.findById(1);
     },
   },
 });
@@ -179,7 +168,7 @@ const queryType = new GraphQLObjectType({
     // Add your own root fields here
     viewer: {
       type: userType,
-      resolve: () => getUser('1')
+      resolve: () => User.findById(1)
     }
   })
 });
