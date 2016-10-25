@@ -1,16 +1,3 @@
-input AddFeatureInput {
-  name: String!
-  description: String!
-  url: String!
-  clientMutationId: String
-}
-
-type AddFeaturePayload {
-  featureEdge: FeaturesEdge
-  viewer: User
-  clientMutationId: String
-}
-
 input AddTodoItemInput {
   name: String!
   issueId: ID!
@@ -20,38 +7,6 @@ input AddTodoItemInput {
 type AddTodoItemPayload {
   todoItem: TodoItem
   clientMutationId: String
-}
-
-type Feature implements Node {
-  # The ID of an object
-  id: ID!
-  name: String!
-  description: String!
-  url: String!
-  createdAt: String!
-  updatedAt: String!
-}
-
-# A connection to a list of items.
-type FeaturesConnection {
-  # Information to aid in pagination.
-  pageInfo: PageInfo!
-
-  # A list of edges.
-  edges: [FeaturesEdge]
-}
-
-enum FeaturesConnectionOrder {
-  ID
-}
-
-# An edge in a connection.
-type FeaturesEdge {
-  # The item at the end of the edge
-  node: Feature
-
-  # A cursor for use in pagination
-  cursor: String!
 }
 
 type Issue implements Node {
@@ -86,7 +41,6 @@ type IssuesEdge {
 }
 
 type Mutation {
-  addFeature(input: AddFeatureInput!): AddFeaturePayload
   addTodoItem(input: AddTodoItemInput!): AddTodoItemPayload
 }
 
@@ -140,6 +94,5 @@ type User implements Node {
 
   # User's website
   website: String
-  features(after: String, first: Int, before: String, last: Int, orderBy: [FeaturesConnectionOrder]): FeaturesConnection
   issues(after: String, first: Int, before: String, last: Int, orderBy: [IssuesConnectionOrder]): IssuesConnection
 }

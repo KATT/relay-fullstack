@@ -83,28 +83,12 @@ const userType = new GraphQLObjectType({
       type: GraphQLString,
       description: 'User\'s website'
     },
-    features: {
-      type: featureConnection.connectionType,
-      args: featureConnection.connectionArgs,
-      resolve: featureConnection.resolve,
-    },
     issues: {
       type: issueConnection.connectionType,
       args: issueConnection.connectionArgs,
       resolve: issueConnection.resolve,
     },
   }),
-  interfaces: [nodeInterface]
-});
-
-
-const featureType = new GraphQLObjectType({
-  name: Feature.name,
-  fields: {
-    ...attributeFields(Feature, {
-      globalId: true,
-    }),
-  },
   interfaces: [nodeInterface]
 });
 
@@ -143,44 +127,6 @@ const issueConnection = sequelizeConnection({
   interfaces: [nodeInterface],
 });
 
-const featureConnection = sequelizeConnection({
-  name: Feature.options.name.plural,
-  nodeType: featureType,
-  target: Feature,
-  interfaces: [nodeInterface],
-});
-/**
- * Create feature example
- */
-
-const addFeature = mutationWithClientMutationId({
-  name: 'AddFeature',
-  inputFields: {
-    name: { type: new GraphQLNonNull(GraphQLString) },
-    description: { type: new GraphQLNonNull(GraphQLString) },
-    url: { type: new GraphQLNonNull(GraphQLString) },
-  },
-  outputFields: {
-    featureEdge: {
-      type: featureConnection.edgeType,
-      async resolve(obj) {
-        // FIXME temp delay to test optimistic update
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-         // FIXME 😷 -- cursor not really working
-        const cursorId = offsetToCursor(obj.id);
-
-        return { node: obj, cursor: cursorId };
-      }
-    },
-    viewer: {
-      type: userType,
-      resolve: () => getUser('1')
-    }
-  },
-  mutateAndGetPayload: data => Feature.create(data),
-});
-
 const addTodoItem = mutationWithClientMutationId({
   name: 'AddTodoItem',
   inputFields: {
@@ -213,7 +159,6 @@ const addTodoItem = mutationWithClientMutationId({
  */
 nodeTypeMapper.mapTypes({
   [Issue.name]: issueType,
-  [Feature.name]: featureType,
   User: {
     type: userType,
     resolve(globalId) {
@@ -246,7 +191,6 @@ const queryType = new GraphQLObjectType({
 const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: () => ({
-    addFeature,
     addTodoItem,
     // Add your own mutations here
   })
